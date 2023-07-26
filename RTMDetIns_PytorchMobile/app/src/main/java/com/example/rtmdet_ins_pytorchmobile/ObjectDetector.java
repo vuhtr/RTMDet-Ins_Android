@@ -1,20 +1,14 @@
 package com.example.rtmdet_ins_pytorchmobile;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.Build;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.pytorch.IValue;
 import org.pytorch.LiteModuleLoader;
@@ -70,33 +64,18 @@ public class ObjectDetector {
 
         readClasses(classPath);
         try {
-            createTFLiteModel(modelPath, true);
+            createModel(modelPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void createTFLiteModel(String modelPath, boolean useNNAPI) throws IOException {
+    private void createModel(String modelPath) throws IOException {
         model = LiteModuleLoader.loadModuleFromAsset(assetManager, modelPath);
         // warm up
         float[] inputData = new float[inferSize * inferSize * 3];
         Tensor inputTensor = Tensor.fromBlob(inputData, new long[]{1, 3, inferSize, inferSize});
         IValue[] outputTensor = model.forward(IValue.from(inputTensor)).toTuple();
-//        System.out.println("[LOG] Output tensor 0 shape: " + outputTensor[0].toTensor().shape().length);
-//        for (int i = 0; i < outputTensor[0].toTensor().shape().length; i++) {
-//            System.out.print(outputTensor[0].toTensor().shape()[i] + " ");
-//        }
-//        System.out.println();
-//        System.out.println("[LOG] Output tensor 1 shape: " + outputTensor[1].toTensor().shape().length);
-//        for (int i = 0; i < outputTensor[1].toTensor().shape().length; i++) {
-//            System.out.print(outputTensor[1].toTensor().shape()[i] + " ");
-//        }
-//        System.out.println();
-//        System.out.println("[LOG] Output tensor 2 shape: " + outputTensor[2].toTensor().shape().length);
-//        for (int i = 0; i < outputTensor[2].toTensor().shape().length; i++) {
-//            System.out.print(outputTensor[2].toTensor().shape()[i] + " ");
-//        }
-
     }
 
     private void readClasses(String labelPath) {
